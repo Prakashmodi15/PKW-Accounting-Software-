@@ -48,8 +48,6 @@
     item.addEventListener('click', () => {
       items.forEach(x => x.classList.remove('active'));
       item.classList.add('active');
-      const page = "vouchers-home/payment.html";
-window.location.href = page;
       // Open the page in same tab
       const page = item.dataset.page;
       window.location.href = page;
