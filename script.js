@@ -9,7 +9,7 @@
 
       // Agar data-key="vouchers" hai → naya page khol do
       if(it.dataset.key === 'vouchers') {
-        window.location.href = "vouchers.html";
+        window.location.href = "vouchers-home/voucher.html";
       } else {
         // Scroll into view on same page for other items
         it.scrollIntoView({ behavior: 'smooth', block: 'center' });
