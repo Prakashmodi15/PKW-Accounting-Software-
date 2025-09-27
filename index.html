@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tally-like Interface (Demo)</title>
+  <style>
+    :root{
+      --blue:#2b66ad;
+      --light-blue:#dff0fb;
+      --panel-blue:#e8f6fb;
+      --accent:#f4b400; /* highlight yellow */
+      --muted:#7a8aa3;
+      --border:#d0d8e6;
+      --bg:#ffffff;
+      --font-sans: "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font-sans);
+      background:var(--bg);
+      color:#0b2440;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Top nav */
+    .topbar{
+      background:var(--blue);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 16px;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:700;
+      font-size:18px;
+    }
+    .brand .silver{
+      font-weight:700;
+      color:#e6f2ff;
+      font-size:14px;
+      opacity:.95;
+    }
+    .top-keys{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-weight:600;
+      font-size:13px;
+    }
+    .top-keys span{
+      padding:6px 8px;
+      background:rgba(255,255,255,0.06);
+      border-radius:4px;
+      border:1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Main layout */
+    .container{
+      flex:1;
+      display:flex;
+      gap:20px;
+      padding:20px;
+      align-items:stretch;
+      overflow:auto;
+    }
+
+    /* Left column - company info */
+    .left{
+      flex:1;
+      min-width:260px;
+      border-right:1px solid var(--border);
+      padding-right:30px;
+    }
+    .section-title{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:0.6px;
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .card{
+      margin-bottom:20px;
+      padding:18px 12px;
+    }
+    .period, .date, .company{
+      background:transparent;
+      padding:6px 0;
+    }
+    .period .value, .date .value, .company .value{
+      font-weight:700;
+      margin-top:6px;
+    }
+    .company-name{
+      font-size:18px;
+      font-weight:700;
+      margin-top:8px;
+    }
+    .small-muted{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    /* Right column - Gateway menu */
+    .right{
+      width:420px;
+      max-width:44%;
+      min-width:300px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding-left:20px;
+    }
+
+    .gateway{
+      width:100%;
+      background:var(--panel-blue);
+      border:1px solid #cbd8e8;
+      box-shadow:0 2px 0 rgba(0,0,0,0.02);
+    }
+    .gateway .header{
+      background:var(--blue);
+      color:#fff;
+      padding:10px 12px;
+      font-weight:700;
+      text-align:center;
+    }
+    .gateway .inner{
+      padding:18px 28px;
+    }
+
+    .group-title{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      margin-bottom:8px;
+      letter-spacing:0.5px;
+      font-weight:700;
+    }
+
+    .menu-item{
+      padding:6px 8px;
+      font-size:15px;
+      cursor:pointer;
+      margin:3px 0;
+      display:block;
+      border-radius:3px;
+    }
+    .menu-item.small{ font-size:13px; color:#0b3b6b; font-weight:600; }
+    .menu-item:hover{ background:rgba(0,0,0,0.03); }
+    .menu-item.active{
+      background:var(--accent);
+      color:#000;
+      font-weight:700;
+    }
+
+    .menu-column{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .quit{
+      margin-top:18px;
+      color:#0b3b6b;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    /* Right side helper column (shortcuts / tooltips) */
+    .right-rail{
+      width:220px;
+      border-left:1px solid var(--border);
+      padding-left:18px;
+      min-width:160px;
+      color:var(--muted);
+    }
+    .rail-item{ padding:8px 0; border-bottom:1px dashed #e6eef8; }
+    .rail-item strong{ display:block; color:#17385f; font-size:14px; margin-bottom:4px; }
+
+    /* Mobile responsiveness */
+    .mobile-toggle{
+      display:none;
+      background:#f1f6fb;
+      border:1px solid #e0eaf7;
+      padding:8px 10px;
+      margin-right:8px;
+      border-radius:6px;
+      cursor:pointer;
+    }
+
+    @media (max-width:900px){
+      .container{ padding:12px; gap:12px; }
+      .right{ display:none; } /* hide right menu by default on tablet/mobile */
+      .right.show{ display:flex; }
+      .right-rail{ display:none; }
+      .brand{ font-size:16px; }
+      .top-keys{ display:none; }
+      .mobile-toggle{ display:inline-flex; align-items:center; gap:8px; }
+    }
+
+    @media (max-width:520px){
+      .container{
+        flex-direction:column;
+      }
+      .left{ border-right:none; padding-right:0; }
+      .right{ max-width:100%; width:100%; padding-left:0; margin-top:12px; }
+      .gateway .inner{ padding:16px; }
+    }
+
+    /* Small visual polish */
+    footer{
+      font-size:12px;
+      color:var(--muted);
+      padding:10px 18px;
+      border-top:1px solid #eef3fa;
+      text-align:right;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button class="mobile-toggle" id="toggleMenu">☰ MENU</button>
+      <div class="brand">
+        <div style="display:flex;flex-direction:column;line-height:1;">
+          <div style="font-size:18px">TallyPrime</div>
+          <div class="silver" style="font-size:12px;">SILVER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-keys" aria-hidden="true">
+      <span>K: Company</span>
+      <span>Y: Data</span>
+      <span>Z: Exchange</span>
+      <span>G: Go To</span>
+      <span>O: Import</span>
+      <span>E: Export</span>
+      <span>M: E-mail</span>
+      <span>P: Print</span>
+      <span>F1: Help</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- LEFT: Company Info -->
+    <div class="left" role="region" aria-label="Company Info">
+      <div class="card">
+        <div class="section-title">CURRENT PERIOD</div>
+        <div class="period">
+          <div class="value">1-Apr-2020 to 31-Mar-2021</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">CURRENT DATE</div>
+        <div class="date">
+          <div class="value">Friday, 1-May-2020</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">NAME OF COMPANY</div>
+        <div class="company">
+          <div class="company-name">National Enterprises</div>
+          <div class="small-muted">Date of Last Entry</div>
+          <div class="value">1-May-2020</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="small-muted">यह demo केवल UI दिखाने के लिए है। डेटा को dynamic करने के लिए JS या backend जोड़ना होगा।</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Gateway menu -->
+    <div class="right" id="rightPanel" role="region" aria-label="Gateway of Tally">
+      <div class="gateway" role="menu">
+        <div class="header">Gateway of Tally</div>
+        <div class="inner">
+          <div class="group">
+            <div class="group-title">MASTERS</div>
+            <div class="menu-column" id="masters">
+              <div class="menu-item active" data-key="create">Create</div>
+              <div class="menu-item" data-key="alter">Alter</div>
+              <div class="menu-item small" data-key="chart">Chart of Accounts</div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">TRANSACTIONS</div>
+            <div class="menu-column" id="transactions">
+              <div class="menu-item" data-key="vouchers">Vouchers</div>
+              <div class="menu-item small" data-key="daybook">Day Book</div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">UTILITIES</div>
+            <div class="menu-column" id="utils">
+              <div class="menu-item" data-key="banking">Banking</div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-title">REPORTS</div>
+            <div class="menu-column" id="reports">
+              <div class="menu-item small" data-key="balance">Balance Sheet</div>
+              <div class="menu-item small" data-key="pl">Profit & Loss A/c</div>
+              <div class="menu-item small" data-key="stock">Stock Summary</div>
+              <div class="menu-item small" data-key="ratio">Ratio Analysis</div>
+              <div class="menu-item small" data-key="more">Display More Reports</div>
+            </div>
+          </div>
+
+          <div class="quit" id="quitBtn">Quit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right rail with small shortcuts / date / company quick -->
+    <div class="right-rail" aria-hidden="true">
+      <div class="rail-item">
+        <strong>F2: Date</strong>
+        <div>Change current date</div>
+      </div>
+      <div class="rail-item">
+        <strong>F3: Company</strong>
+        <div>Open company list / switch</div>
+      </div>
+      <div class="rail-item">
+        <strong>Contact</strong>
+        <div>Demo UI — Copy / Modify as needed</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Built to resemble Tally Gateway — Demo UI
+  </footer>
+
+  <script>
+    // Simple JS: highlight selected menu item, mobile toggle
+    (function(){
+      const items = document.querySelectorAll('.menu-item');
+      items.forEach(it=>{
+        it.addEventListener('click', ()=> {
+          document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active'));
+          it.classList.add('active');
+        });
+      });
+
+      const toggle = document.getElementById('toggleMenu');
+      const right = document.getElementById('rightPanel');
+      toggle.addEventListener('click', ()=>{
+        if(!right.classList.contains('show')) right.classList.add('show');
+        else right.classList.remove('show');
+        // scroll into view on small
+        right.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+
+      // Optional: keyboard shortcuts (G to focus menu)
+      document.addEventListener('keydown', (e)=>{
+        if(e.key.toLowerCase() === 'g'){
+          // toggle menu on small screens
+          if(window.innerWidth < 900){
+            toggle.click();
+          } else {
+            // focus first active item visually
+            const active = document.querySelector('.menu-item.active');
+            if(active) active.scrollIntoView({block:'center', behavior:'smooth'});
+          }
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
