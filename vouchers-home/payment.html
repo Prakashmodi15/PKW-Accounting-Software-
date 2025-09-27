@@ -1,1 +1,547 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally Prime - Payment Voucher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: #3498db;
+        }
+        
+        .voucher-info {
+            display: flex;
+            background: #34495e;
+            padding: 10px 20px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .voucher-info div {
+            margin-right: 30px;
+        }
+        
+        .voucher-form {
+            padding: 20px;
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .form-row {
+            display: flex;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-row:last-child {
+            border-bottom: none;
+        }
+        
+        .form-group {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .form-group:last-child {
+            margin-right: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .amount-input {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #ddd;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn-accept {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background: #219653;
+        }
+        
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-reject:hover {
+            background: #c0392b;
+        }
+        
+        .btn-alt {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-alt:hover {
+            background: #2980b9;
+        }
+        
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .transaction-table th, .transaction-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .transaction-table th {
+            background: #f2f2f2;
+        }
+        
+        .add-row {
+            text-align: center;
+            padding: 10px;
+            background: #f9f9f9;
+            cursor: pointer;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .tally-shortcuts {
+            display: flex;
+            background: #2c3e50;
+            padding: 5px;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .shortcut {
+            margin-right: 15px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Tally<span>Prime</span></div>
+            <div>Payment Voucher</div>
+        </div>
+        
+        <div class="tally-shortcuts">
+            <div class="shortcut">F2: Date</div>
+            <div class="shortcut">Ctrl+A: Accept</div>
+            <div class="shortcut">Ctrl+R: Reject</div>
+            <div class="shortcut">Ctrl+E: Edit</div>
+            <div class="shortcut">Alt+C: Contra Voucher</div>
+            <div class="shortcut">Alt+P: Payment Voucher</div>
+        </div>
+        
+        <div class="voucher-info">
+            <div>Date: <span id="current-date"></span></div>
+            <div>Voucher No.: <span id="voucher-number">1</span></div>
+            <div>Type: Payment</div>
+        </div>
+        
+        <div class="success-message" id="success-message">Voucher successfully saved!</div>
+        <div class="error-message" id="error-message"></div>
+        
+        <div class="voucher-form">
+            <div class="form-section">
+                <div class="section-header">Payment Details</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payment-date">Date</label>
+                        <input type="date" id="payment-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="voucher-no">Voucher No.</label>
+                        <input type="text" id="voucher-no" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-type">Payment Type</label>
+                        <select id="payment-type">
+                            <option value="cash">Cash Payment</option>
+                            <option value="bank">Bank Payment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paid-to">Paid To (Debit)</label>
+                        <input type="text" id="paid-to" placeholder="Enter party/account name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paid-from">Paid From (Credit)</label>
+                        <input type="text" id="paid-from" placeholder="Cash/Bank account" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" class="amount-input" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment-mode">Payment Mode</label>
+                        <select id="payment-mode">
+                            <option value="cash">Cash</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="neft">NEFT/RTGS</option>
+                            <option value="upi">UPI</option>
+                            <option value="card">Card</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reference">Reference No./Cheque No.</label>
+                        <input type="text" id="reference" placeholder="Optional">
+                    </div>
+                    <div class="form-group">
+                        <label for="reference-date">Reference Date</label>
+                        <input type="date" id="reference-date">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-header">Transaction Details</div>
+                
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Amount (₹)</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-body">
+                        <tr>
+                            <td><input type="text" class="transaction-account" placeholder="Account name"></td>
+                            <td><input type="number" class="transaction-amount" placeholder="0.00" step="0.01"></td>
+                            <td>
+                                <select class="transaction-type">
+                                    <option value="debit">Debit</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                            </td>
+                            <td><button class="btn-remove-row" onclick="removeRow(this)">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="add-row" onclick="addTransactionRow()">+ Add Row</div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-header">Narration</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <textarea id="narration" rows="3" placeholder="Enter payment details or remarks"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn-alt" onclick="clearForm()">Clear (Alt+C)</button>
+            <button class="btn-reject" onclick="rejectVoucher()">Reject (Ctrl+R)</button>
+            <button class="btn-accept" onclick="saveVoucher()">Accept (Ctrl+A)</button>
+        </div>
+    </div>
 
+    <script>
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN');
+        document.getElementById('payment-date').valueAsDate = new Date();
+        
+        // Add transaction row
+        function addTransactionRow() {
+            const tbody = document.getElementById('transaction-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="transaction-account" placeholder="Account name"></td>
+                <td><input type="number" class="transaction-amount" placeholder="0.00" step="0.01"></td>
+                <td>
+                    <select class="transaction-type">
+                        <option value="debit">Debit</option>
+                        <option value="credit">Credit</option>
+                    </select>
+                </td>
+                <td><button class="btn-remove-row" onclick="removeRow(this)">Remove</button></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+        
+        // Remove transaction row
+        function removeRow(button) {
+            const row = button.closest('tr');
+            if (document.querySelectorAll('#transaction-body tr').length > 1) {
+                row.remove();
+            } else {
+                alert('At least one transaction row is required.');
+            }
+        }
+        
+        // Clear form
+        function clearForm() {
+            if (confirm('Are you sure you want to clear the form?')) {
+                document.getElementById('voucher-form').reset();
+                const tbody = document.getElementById('transaction-body');
+                tbody.innerHTML = `
+                    <tr>
+                        <td><input type="text" class="transaction-account" placeholder="Account name"></td>
+                        <td><input type="number" class="transaction-amount" placeholder="0.00" step="0.01"></td>
+                        <td>
+                            <select class="transaction-type">
+                                <option value="debit">Debit</option>
+                                <option value="credit">Credit</option>
+                            </select>
+                        </td>
+                        <td><button class="btn-remove-row" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                `;
+                document.getElementById('success-message').style.display = 'none';
+                document.getElementById('error-message').style.display = 'none';
+            }
+        }
+        
+        // Reject voucher
+        function rejectVoucher() {
+            if (confirm('Are you sure you want to reject this voucher?')) {
+                clearForm();
+            }
+        }
+        
+        // Save voucher data
+        function saveVoucher() {
+            // Basic validation
+            const paidTo = document.getElementById('paid-to').value;
+            const paidFrom = document.getElementById('paid-from').value;
+            const amount = document.getElementById('amount').value;
+            
+            if (!paidTo || !paidFrom || !amount) {
+                showError('Please fill all required fields.');
+                return;
+            }
+            
+            // Collect transaction data
+            const transactions = [];
+            const transactionRows = document.querySelectorAll('#transaction-body tr');
+            
+            transactionRows.forEach(row => {
+                const account = row.querySelector('.transaction-account').value;
+                const amount = row.querySelector('.transaction-amount').value;
+                const type = row.querySelector('.transaction-type').value;
+                
+                if (account && amount) {
+                    transactions.push({
+                        account: account,
+                        amount: parseFloat(amount),
+                        type: type
+                    });
+                }
+            });
+            
+            // Prepare voucher data
+            const voucherData = {
+                date: document.getElementById('payment-date').value,
+                voucherNo: document.getElementById('voucher-no').value,
+                paymentType: document.getElementById('payment-type').value,
+                paidTo: paidTo,
+                paidFrom: paidFrom,
+                amount: parseFloat(amount),
+                paymentMode: document.getElementById('payment-mode').value,
+                reference: document.getElementById('reference').value,
+                referenceDate: document.getElementById('reference-date').value,
+                narration: document.getElementById('narration').value,
+                transactions: transactions,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save to localStorage (simulating API call)
+            try {
+                // In a real scenario, you would send this data to your API
+                // For demonstration, we'll use localStorage
+                const vouchers = JSON.parse(localStorage.getItem('paymentVouchers') || '[]');
+                vouchers.push(voucherData);
+                localStorage.setItem('paymentVouchers', JSON.stringify(vouchers));
+                
+                // Show success message
+                showSuccess('Voucher successfully saved to database!');
+                
+                // Increment voucher number for next entry
+                document.getElementById('voucher-no').value = parseInt(document.getElementById('voucher-no').value) + 1;
+                document.getElementById('voucher-number').textContent = document.getElementById('voucher-no').value;
+                
+                // Clear transaction rows except the first one
+                const tbody = document.getElementById('transaction-body');
+                tbody.innerHTML = `
+                    <tr>
+                        <td><input type="text" class="transaction-account" placeholder="Account name"></td>
+                        <td><input type="number" class="transaction-amount" placeholder="0.00" step="0.01"></td>
+                        <td>
+                            <select class="transaction-type">
+                                <option value="debit">Debit</option>
+                                <option value="credit">Credit</option>
+                            </select>
+                        </td>
+                        <td><button class="btn-remove-row" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                `;
+                
+            } catch (error) {
+                showError('Error saving voucher: ' + error.message);
+            }
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const successMsg = document.getElementById('success-message');
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+A to accept/save
+            if (e.ctrlKey && e.key === 'a') {
+                e.preventDefault();
+                saveVoucher();
+            }
+            
+            // Ctrl+R to reject
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                rejectVoucher();
+            }
+            
+            // F2 to focus on date field
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('payment-date').focus();
+            }
+        });
+    </script>
+</body>
+</html>
