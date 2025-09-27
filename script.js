@@ -2,60 +2,63 @@
   const items = document.querySelectorAll('.menu-item');
   const right = document.getElementById('rightPanel');
 
-  // Function to load saved HTML
+  // Functions to load/save HTML
   const loadHTML = (key) => localStorage.getItem('tally_html_' + key) || null;
   const saveHTML = (key, html) => localStorage.setItem('tally_html_' + key, html);
 
   items.forEach(it => {
-    it.addEventListener('click', (e) => {
-      // Sabhi menu items se active remove karo
+    it.addEventListener('click', () => {
+      // Active toggle
       items.forEach(x => x.classList.remove('active'));
       it.classList.add('active');
 
       const key = it.dataset.key;
 
+      // Vouchers redirect
       if(key === 'vouchers') {
-        // Agar data-key="vouchers" hai → naya page khol do
         window.location.href = "vouchers-home/voucher.html";
+        return;
+      }
+
+      // Scroll active item into view
+      it.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Load saved HTML if exists
+      let savedHTML = loadHTML(key);
+      if(savedHTML) {
+        right.innerHTML = `<div id="dynamicContent">${savedHTML}</div>`;
       } else {
-        // Scroll into view on same page for other items
-        it.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Check if saved HTML exists
-        const savedHTML = loadHTML(key);
-        if(savedHTML) {
-          right.innerHTML = `<div id="dynamicContent">${savedHTML}</div>`;
-        } else {
-          // Show "Add HTML" button
-          right.innerHTML = `
+        // Blank white page with Add HTML button
+        right.innerHTML = `
+          <div style="background:#fff; min-height:300px; padding:16px;">
             <button id="addHtmlBtn">Add HTML</button>
-            <div id="htmlContainer" style="margin-top:10px;"></div>
+            <div id="htmlContainer" style="margin-top:12px;"></div>
+          </div>
+        `;
+        const addBtn = document.getElementById('addHtmlBtn');
+        const container = document.getElementById('htmlContainer');
+
+        addBtn.addEventListener('click', () => {
+          const filename = prompt("File Name:");
+          if(!filename) return;
+
+          container.innerHTML = `
+            <div style="margin-bottom:6px;">Enter HTML for <strong>${filename}</strong>:</div>
+            <textarea id="htmlInput" rows="10" style="width:100%;"></textarea>
+            <button id="runHtmlBtn" style="margin-top:6px;">Run HTML</button>
+            <div id="output" style="margin-top:12px; border:1px solid #ccc; padding:8px;"></div>
           `;
-          const addBtn = document.getElementById('addHtmlBtn');
-          const container = document.getElementById('htmlContainer');
 
-          addBtn.addEventListener('click', () => {
-            const filename = prompt("File Name:");
-            if(!filename) return;
+          const runBtn = document.getElementById('runHtmlBtn');
+          const htmlInput = document.getElementById('htmlInput');
+          const output = document.getElementById('output');
 
-            container.innerHTML = `
-              <div style="margin-bottom:6px;">Enter HTML for <strong>${filename}</strong>:</div>
-              <textarea id="htmlInput" rows="8" style="width:100%;"></textarea>
-              <button id="runHtmlBtn" style="margin-top:6px;">Run HTML</button>
-              <div id="output" style="margin-top:10px; border:1px solid #ccc; padding:8px;"></div>
-            `;
-
-            const runBtn = document.getElementById('runHtmlBtn');
-            const htmlInput = document.getElementById('htmlInput');
-            const output = document.getElementById('output');
-
-            runBtn.addEventListener('click', () => {
-              const code = htmlInput.value;
-              output.innerHTML = code;
-              saveHTML(key, code); // Save to localStorage
-            });
+          runBtn.addEventListener('click', () => {
+            const code = htmlInput.value;
+            output.innerHTML = code;
+            saveHTML(key, code); // Save to localStorage
           });
-        }
+        });
       }
     });
   });
@@ -69,11 +72,11 @@
 
   // Keyboard shortcut - G to focus menu
   document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'g') {
-      if (window.innerWidth < 900) toggle.click();
+    if(e.key.toLowerCase() === 'g') {
+      if(window.innerWidth < 900) toggle.click();
       else {
         const active = document.querySelector('.menu-item.active');
-        if (active) active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        if(active) active.scrollIntoView({ block: 'center', behavior: 'smooth' });
       }
     }
   });
@@ -89,13 +92,13 @@
       const companyNameEl = document.querySelector('.company-name');
       const lastEntryEl = document.querySelector('.company .value');
 
-      if (data) {
+      if(data) {
         periodEl.textContent = data.period || '';
         dateEl.textContent = data.date || '';
         companyNameEl.textContent = data.name || '';
         lastEntryEl.textContent = data.lastEntry || '';
       }
-    } catch (err) {
+    } catch(err) {
       console.error('Error loading company data:', err);
     }
   }
