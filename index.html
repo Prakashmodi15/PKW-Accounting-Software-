@@ -167,49 +167,7 @@
 
   <footer>Built to resemble Tally Gateway — Demo UI</footer>
 
-  <script>
-    (function(){
-      const items = document.querySelectorAll('.menu-item');
-      items.forEach(it=>{
-        it.addEventListener('click', ()=> {
-          document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active'));
-          it.classList.add('active');
-        });
-      });
-
-      const toggle = document.getElementById('toggleMenu');
-      const right = document.getElementById('rightPanel');
-      toggle.addEventListener('click', ()=>{
-        right.classList.toggle('show');
-        right.scrollIntoView({behavior:'smooth', block:'start'});
-      });
-
-      document.addEventListener('keydown', (e)=>{
-        if(e.key.toLowerCase() === 'g'){
-          if(window.innerWidth < 900){ toggle.click(); }
-          else{
-            const active = document.querySelector('.menu-item.active');
-            if(active) active.scrollIntoView({block:'center', behavior:'smooth'});
-          }
-        }
-      });
-
-      // ✅ Dynamic company info fetch
-      async function loadCompany() {
-        try {
-          const res = await fetch("http://localhost:3000/company");
-          const data = await res.json();
-          document.getElementById("companyName").textContent = data.name;
-          document.getElementById("period").textContent = data.period;
-          document.getElementById("currentDate").textContent = data.date;
-          document.getElementById("lastEntry").textContent = data.lastEntry;
-        } catch(err){
-          console.error("Error fetching company data:", err);
-        }
-      }
-      loadCompany();
-    })();
-  </script>
+  <script src="script.js" type="module"></script>
 
 </body>
 </html>
