@@ -43,22 +43,26 @@
 </div>
 
 <script>
-  // सब vouchers पर click event लगाना
+  // सभी vouchers select करो
   const items = document.querySelectorAll('#voucherList li');
+
   items.forEach(item => {
     item.addEventListener('click', () => {
-      // पहले active class remove कर दो
+      // पहले सभी से active class हटा दो
       items.forEach(x => x.classList.remove('active'));
+
+      // clicked item को active बनाओ
       item.classList.add('active');
 
-      // page open करना
-      const page = item.dataset.page;
-      
-      // Safety check: अगर path खाली है तो error न आए
-      if(page) {
+      // page open करने के लिए path लो
+      const page = item.getAttribute('data-page');
+
+      // Safety check: अगर path खाली या गलत है तो alert
+      if (page && page.trim() !== "") {
+        // Page open करो same tab में
         window.location.href = page;
       } else {
-        alert('Page file missing!');
+        alert("⚠️ Page file missing या path गलत है!");
       }
     });
   });
