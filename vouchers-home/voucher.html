@@ -7,13 +7,13 @@
 <style>
   body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background:#e8f6fb; margin:0; padding:0; }
   .container { width: 400px; margin:50px auto; border:1px solid #cbd8e8; background:#f0f6fb; }
-  .header { background:#2b66ad; color:#fff; padding:8px 12px; font-weight:bold; }
+  .header { background:#2b66ad; color:#fff; padding:8px 12px; font-weight:bold; position:relative; }
   .voucher-list { list-style:none; margin:0; padding:0; max-height:500px; overflow-y:auto; }
   .voucher-list li { padding:8px 12px; cursor:pointer; border-bottom:1px solid #d0d8e6; }
   .voucher-list li:hover { background:#dff0fb; }
   .voucher-list li.active { background:#f4b400; color:#000; font-weight:bold; }
-  .top-links { text-align:right; padding:4px 12px; font-size:14px; }
-  .top-links span { margin-left:10px; cursor:pointer; color:#0b2440; }
+  .top-links { text-align:right; padding:4px 12px; font-size:14px; position:absolute; top:0; right:0; }
+  .top-links span { margin-left:10px; cursor:pointer; color:#fff; }
   .top-links span:hover { text-decoration:underline; }
 </style>
 </head>
@@ -23,9 +23,9 @@
   <div class="header">
     List of Voucher Types
     <div class="top-links">
-      <span>Create</span>
-      <span>Show Inactive</span>
-      <span>Back</span>
+      <span onclick="alert('Create clicked')">Create</span>
+      <span onclick="alert('Show Inactive clicked')">Show Inactive</span>
+      <span onclick="alert('Back clicked')">Back</span>
     </div>
   </div>
   <ul class="voucher-list" id="voucherList">
@@ -43,18 +43,26 @@
 </div>
 
 <script>
+  // सब vouchers पर click event लगाना
   const items = document.querySelectorAll('#voucherList li');
   items.forEach(item => {
     item.addEventListener('click', () => {
+      // पहले active class remove कर दो
       items.forEach(x => x.classList.remove('active'));
       item.classList.add('active');
-      // Open the page in same tab
+
+      // page open करना
       const page = item.dataset.page;
-      window.location.href = page;
+      
+      // Safety check: अगर path खाली है तो error न आए
+      if(page) {
+        window.location.href = page;
+      } else {
+        alert('Page file missing!');
+      }
     });
   });
 </script>
 
 </body>
 </html>
-v
